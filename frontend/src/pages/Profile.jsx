@@ -1,8 +1,8 @@
 // src/pages/Profile.jsx
 import React, { useState } from "react";
+import "./Profile.css";
 
 export default function Profile() {
-  // Postări inițiale (mai realiste, nu dummy)
   const [posts, setPosts] = useState([
     {
       author: "Ioana Popescu",

@@ -4,14 +4,26 @@
 
 /* Base page background and font tweaks for the home page */
 @layer base {
+  /* color palette variables (site-wide) */
+  :root {
+    --color-accent: #3fd2c7; /* teal */
+    --color-light: #99ddff; /* light blue */
+    --color-primary: #00458b; /* deep blue */
+    --color-primary-opaque: rgba(0, 69, 139, 0.12);
+  }
   html,
   body,
   #root {
     height: 100%;
   }
   body {
-    /* FIXED: Changed 'amber' to 'yellow' for guaranteed recognition */
-    @apply bg-gradient-to-b from-yellow-50 via-yellow-100 to-yellow-50 antialiased;
+    /* Use new site color palette for a soft vertical gradient */
+    background: linear-gradient(
+      to bottom,
+      var(--color-accent),
+      var(--color-light),
+      #ffffff
+    );
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
       Roboto, "Helvetica Neue", Arial;
     -webkit-font-smoothing: antialiased;
@@ -23,64 +35,290 @@
 @layer components {
   /* central feed container that sits on the soft gradient */
   .home-feed-container {
-    @apply max-w-6xl mx-auto p-6 bg-white/90 rounded-2xl shadow-2xl min-h-[calc(100vh-48px)] relative;
+    max-width: 72rem; /* max-w-6xl */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1.5rem; /* p-6 */
+    background-color: rgba(255, 255, 255, 0.9); /* bg-white/90 */
+    border-radius: 1rem; /* rounded-2xl */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl approximation */
+    min-height: calc(100vh - 48px);
+    position: relative;
   }
 
   /* fixed page title in the viewport top-left with warm gradient */
   .home-title {
-    /* Kept 'orange' and 'yellow' as they are standard colors */
-    @apply fixed top-4 left-4 m-0 px-4 py-2 rounded-md bg-gradient-to-r from-orange-500 to-yellow-400 text-white text-lg font-extrabold shadow-lg z-50;
+    /* keep the title in the normal document flow so navbar can sit below it */
+    position: relative;
+    margin: 0 0 0.5rem 0;
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    border-radius: 0.375rem; /* rounded-md */
+    /* title gradient uses accent -> light for a cool branded banner */
+    background: linear-gradient(
+      to right,
+      var(--color-accent),
+      var(--color-light)
+    );
+    color: #ffffff;
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 800; /* font-extrabold */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+    z-index: 50;
   }
 
   /* navbar wrapper positioned under the title */
   .home-nav-wrapper {
-    @apply fixed left-4 top-24 z-40;
+    /* place the navbar directly below the title and in the normal flow */
+    position: relative;
+    margin-top: 0.5rem;
+    z-index: 40;
+  }
+
+  /* site-wide navbar styling (used by `Navbar.jsx`) */
+  .site-navbar {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(
+      90deg,
+      rgba(249, 115, 22, 0.95),
+      rgba(250, 204, 21, 0.95)
+    );
+    box-shadow: 0 6px 18px rgba(250, 204, 21, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(6px);
+  }
+
+  .site-nav-inner {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .site-nav-link {
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.5rem 0.85rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 160ms ease, box-shadow 160ms ease,
+      background 160ms ease;
+    font-size: 0.95rem;
+  }
+
+  .site-nav-link:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   }
 
   /* pill style nav link */
   .home-nav-link {
-    /* FIXED: Changed 'amber' to 'yellow' for guaranteed recognition */
-    @apply inline-block px-4 py-2 rounded-full font-semibold text-yellow-800 bg-yellow-100 border border-yellow-200 transition-transform duration-150 ease-in-out hover:-translate-y-0.5 hover:shadow-md;
+    display: inline-block;
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    border-radius: 9999px; /* rounded-full */
+    font-weight: 600; /* font-semibold */
+    color: #ffffff;
+    background-color: rgba(0, 69, 139, 0.15);
+    border: 1px solid rgba(0, 69, 139, 0.12);
+    transition: transform 150ms ease-in-out, box-shadow 150ms ease-in-out;
+  }
+  .home-nav-link:hover {
+    transform: translateY(-2px); /* hover:-translate-y-0.5 */
+    box-shadow: 0 6px 14px rgba(0, 69, 139, 0.12); /* hover:shadow-md */
   }
 
   /* responsive grid for posts */
   .home-posts-grid {
-    @apply mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 items-start;
+    margin-top: 2.5rem; /* mt-10 */
+    display: grid;
+    /* single-column layout so postcards stack vertically */
+    grid-template-columns: 1fr;
+    gap: 1.5rem; /* gap-6 */
+    align-items: start;
   }
+  /* Removed multi-column breakpoints to keep one column across all sizes */
 
   /* post frame styling (card) */
   .home-post-frame {
-    /* FIXED: Changed 'amber' to 'yellow' for guaranteed recognition */
-    @apply p-6 rounded-xl bg-white border border-yellow-100 shadow-md hover:-translate-y-2 hover:shadow-2xl transition-transform duration-200 ease-out overflow-hidden;
+    padding: 1rem; /* reduced padding to make cards a little smaller */
+    border-radius: 0.5rem; /* slightly tighter corners */
+    background-color: #ffffff;
+    /* stronger accent border that matches the site's accent color */
+    border: 2px solid var(--color-accent);
+    box-shadow: 0 6px 18px rgba(0, 69, 139, 0.06); /* subtle blue-tinted shadow */
+    transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    overflow: hidden;
+  }
+  .home-post-frame:hover {
+    transform: translateY(-0.5rem); /* hover:-translate-y-2 */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.12); /* softer hover shadow */
+    /* subtle outline using primary color on hover */
+    outline: 3px solid rgba(0, 69, 139, 0.08);
   }
 
   /* small meta / author styling */
   .home-meta {
-    /* FIXED: Changed 'amber' to 'yellow' for guaranteed recognition */
-    @apply text-yellow-800 text-xs mt-3 font-semibold;
+    color: var(--color-primary); /* deep blue */
+    font-size: 0.75rem; /* text-xs */
+    margin-top: 0.75rem; /* mt-3 */
+    font-weight: 600; /* font-semibold */
   }
 }
 
 /* small-screen adjustments so fixed elements don't block content */
 @layer utilities {
-  @screen sm {
+  @media (min-width: 640px) {
     .home-title {
-      @apply text-xl;
+      font-size: 1.25rem; /* text-xl */
     }
   }
 
-  @screen xs {
+  @media (max-width: 639px) {
     .home-title {
-      @apply left-3 top-3 px-3 py-1.5 text-sm;
+      padding: 0.375rem 0.75rem; /* px-3 py-1.5 */
+      font-size: 0.875rem; /* text-sm */
     }
     .home-nav-wrapper {
-      @apply left-3 top-16;
+      margin-top: 0.5rem;
     }
     .home-feed-container {
-      @apply p-4;
+      padding: 1rem; /* p-4 */
     }
     .home-post-frame {
-      @apply p-4;
+      padding: 1rem; /* p-4 */
     }
+  }
+}
+
+/* navbar visual styles (uses new palette) */
+@layer components {
+  .site-navbar {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(
+      90deg,
+      var(--color-primary),
+      var(--color-accent)
+    );
+    box-shadow: 0 6px 18px rgba(0, 69, 139, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(6px);
+  }
+
+  .site-nav-inner {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .site-nav-link {
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.5rem 0.85rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 160ms ease, box-shadow 160ms ease,
+      background 160ms ease;
+    font-size: 0.95rem;
+  }
+
+  .site-nav-link:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Postcard (inner content block) styling to match palette and be slightly smaller */
+  .postcard {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(153, 221, 255, 0.02)
+    );
+    padding: 0.75rem;
+    border-radius: 0.6rem;
+    color: #0f172a; /* dark text */
+  }
+
+  .postcard-header {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .postcard-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    object-fit: cover;
+    box-shadow: 0 4px 10px var(--color-primary-opaque);
+    border: 2px solid rgba(63, 210, 199, 0.18); /* subtle accent ring */
+  }
+
+  .postcard-author {
+    margin: 0;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .postcard-date {
+    margin: 0;
+    color: rgba(15, 23, 42, 0.6);
+    font-size: 0.8rem;
+  }
+
+  .postcard-title {
+    margin: 0 0 0.35rem 0;
+    font-size: 1.05rem;
+    color: var(--color-primary);
+    font-weight: 800;
+  }
+
+  .postcard-content {
+    margin: 0;
+    color: rgba(15, 23, 42, 0.88);
+    line-height: 1.45;
+    font-size: 0.95rem;
+  }
+
+  .postcard-footer {
+    margin-top: 0.6rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(0, 69, 139, 0.05);
+  }
+
+  .postcard-actions {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+  }
+
+  .postcard-action {
+    background: transparent;
+    border: none;
+    color: rgba(0, 69, 139, 0.85);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    transition: background 140ms ease, transform 140ms ease;
+  }
+
+  .postcard-action:hover {
+    background: rgba(63, 210, 199, 0.06);
+    transform: translateY(-2px);
   }
 }
