@@ -1,54 +1,31 @@
-// /aplicatie_mgc/frontend/src/pages/Gambling.jsx
-import React, { useState, useEffect, useRef } from "react";
-import { Wheel } from "spin-wheel";
+import React, { useState, useRef } from "react";
 
-export default function Gambling({ initialPoints = 5000, costPerSpin = 1000 }) {
-  const JACKPOT_LABEL = "Paid Holiday";
+export default function Gambling({ initialPoints = 5000, costPerSpin = 0.5 }) {
+  const JACKPOT_PROB = 0.005;
   const sectors = [
     "Small Bonus",
-    "Nothing",
+    "Nothing 1",
     "Voucher",
-    "Nothing",
+    "Nothing 2",
     "Extra Points",
-    "Nothing",
+    "Nothing 3",
     "Discount",
-    "Nothing",
-    JACKPOT_LABEL,
-    "Nothing",
+    "Nothing 4",
+    "Extra Day Paid Holiday",
+    "Nothing 5",
     "Bonus XP",
-    "Nothing",
+    "Nothing 6",
   ];
 
-  const wheelRef = useRef(null);
-  const [wheelInstance, setWheelInstance] = useState(null);
+  const jackpotIndex = sectors.indexOf("Extra Day Paid Holiday");
+  const sectorCount = sectors.length;
+  const sectorAngle = 360 / sectorCount;
+
   const [points, setPoints] = useState(initialPoints);
   const [spinning, setSpinning] = useState(false);
   const [message, setMessage] = useState("");
-
-  // Init wheel
-  useEffect(() => {
-    if (!wheelRef.current) return;
-
-    const wheel = new Wheel(wheelRef.current, {
-      sectors,
-      radius: 200, // mareste roata
-      outerRadius: 220,
-      innerRadius: 0,
-      spinTime: 5000,
-      onFinish: (sector) => {
-        setSpinning(false);
-        if (sector === JACKPOT_LABEL) {
-          setMessage(
-            "🎉 Congratulations! You won a Paid Holiday! Contact HR to arrange it."
-          );
-        } else {
-          setMessage(`You landed on "${sector}".`);
-        }
-      },
-    });
-
-    setWheelInstance(wheel);
-  }, [wheelRef]);
+  const [rotation, setRotation] = useState(0);
+  const wheelRef = useRef(null);
 
   const canSpin = () => !spinning && points >= costPerSpin;
 
@@ -57,106 +34,224 @@ export default function Gambling({ initialPoints = 5000, costPerSpin = 1000 }) {
       setMessage(points < costPerSpin ? "Not enough points." : "");
       return;
     }
-    setPoints((p) => p - costPerSpin);
+
     setMessage("");
     setSpinning(true);
+    setPoints((p) => p - costPerSpin);
 
-    // Deterministic spin for jackpot probability
-    const JACKPOT_PROB = 0.005;
-    let chosenIndex;
-    if (Math.random() < JACKPOT_PROB) {
-      chosenIndex = sectors.indexOf(JACKPOT_LABEL);
-    } else {
-      const nonJackpot = sectors
-        .map((s, i) => (s !== JACKPOT_LABEL ? i : null))
-        .filter((i) => i !== null);
-      chosenIndex = nonJackpot[Math.floor(Math.random() * nonJackpot.length)];
+    const win = Math.random() < JACKPOT_PROB;
+    let landingIndex;
+
+    if (win) landingIndex = jackpotIndex;
+    else {
+      const nonJackpot = [];
+      for (let i = 0; i < sectorCount; i++)
+        if (i !== jackpotIndex) nonJackpot.push(i);
+      landingIndex = nonJackpot[Math.floor(Math.random() * nonJackpot.length)];
     }
 
-    wheelInstance.spinToSector(chosenIndex);
+    // ✅ Correct rotation math for pointer-at-top (12 o’clock)
+    // Add +90° so 0° aligns to the top instead of right side
+    const rounds = 6 + Math.floor(Math.random() * 3);
+    const randomOffset = (Math.random() - 0.5) * sectorAngle * 0.7;
+    const targetDeg =
+      rounds * 360 +
+      (360 - (landingIndex * sectorAngle + sectorAngle / 2)) +
+      90 +
+      randomOffset;
+
+    const newRotation = rotation + targetDeg;
+    setRotation(newRotation);
+
+    if (wheelRef.current) {
+      wheelRef.current.style.transition =
+        "transform 5s cubic-bezier(.17,.67,.34,1)";
+      wheelRef.current.style.transform = `rotate(${newRotation}deg)`;
+    }
+
+    setTimeout(() => {
+      setSpinning(false);
+      setMessage(
+        win
+          ? "🎉 Congratulations! You won a Paid Holiday!"
+          : `Unlucky this time. You landed on "${sectors[landingIndex]}".`
+      );
+    }, 5200);
   };
 
   const handleReset = () => {
     if (spinning) return;
     setPoints(initialPoints);
     setMessage("");
+    setRotation(0);
+    if (wheelRef.current) {
+      wheelRef.current.style.transition = "none";
+      wheelRef.current.style.transform = "rotate(0deg)";
+    }
   };
+
+  const wheelSize = 450;
+  const radius = wheelSize / 2 - 40;
+  const textRadius = radius - 30;
+
+  const colors = sectors.map((_, i) =>
+    i === jackpotIndex ? "#FFD700" : `hsl(${(i * 360) / sectorCount}, 70%, 50%)`
+  );
+  const gradient = `conic-gradient(${colors
+    .map((c, i) => `${c} ${i * sectorAngle}deg ${(i + 1) * sectorAngle}deg`)
+    .join(", ")})`;
 
   return (
     <div
+      className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8 space-y-8"
       style={{
-        padding: 20,
-        fontFamily: "Arial, sans-serif",
-        maxWidth: 720,
-        margin: "0 auto",
-        textAlign: "center",
+        backgroundImage:
+          "url(https://travelnevada.com/wp-content/uploads/2020/09/Vegas_Desktop.jpg)",
       }}
     >
-      <h2>Gamble for a Paid Holiday 🎰</h2>
-      <p>
-        Cost per spin: {costPerSpin} points • Chance to win Paid Holiday: 0.5%
+      <h2 className="text-3xl font-bold text-gray-800">
+        Get a day of Paid Holiday. Free of Charge!
+      </h2>
+      <p className="text-gray-600">
+        Cost per spin: {costPerSpin} points • Chance to win Paid Holiday: 0.05%
       </p>
 
-      <div
-        ref={wheelRef}
-        style={{
-          margin: "40px auto",
-          width: 450,
-          height: 450,
-          position: "relative",
-        }}
-      />
+      <div className="relative flex items-center justify-center">
+        {/* Wheel */}
+        <div
+          ref={wheelRef}
+          style={{
+            width: wheelSize,
+            height: wheelSize,
+            borderRadius: "50%",
+            background: gradient,
+            position: "relative",
+            boxShadow: "0 12px 24px rgba(0,0,0,0.3)",
+            overflow: "hidden",
+          }}
+        >
+          {/* Curved text */}
+          <svg
+            viewBox={`0 0 ${wheelSize} ${wheelSize}`}
+            width={wheelSize}
+            height={wheelSize}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              transform: "rotate(-90deg)", // baseline adjustment
+            }}
+          >
+            {sectors.map((label, i) => {
+              const startAngle = i * sectorAngle;
+              const endAngle = (i + 1) * sectorAngle;
+              const largeArc = sectorAngle > 180 ? 1 : 0;
 
-      <div style={{ marginBottom: 12, fontSize: 18 }}>
-        <strong>Your points:</strong> {points}
+              const startX =
+                wheelSize / 2 +
+                textRadius * Math.cos((startAngle * Math.PI) / 180);
+              const startY =
+                wheelSize / 2 +
+                textRadius * Math.sin((startAngle * Math.PI) / 180);
+              const endX =
+                wheelSize / 2 +
+                textRadius * Math.cos((endAngle * Math.PI) / 180);
+              const endY =
+                wheelSize / 2 +
+                textRadius * Math.sin((endAngle * Math.PI) / 180);
+
+              const pathId = `path-${i}`;
+
+              return (
+                <g key={i}>
+                  <path
+                    id={pathId}
+                    d={`M${startX},${startY} A${textRadius},${textRadius} 0 ${largeArc},1 ${endX},${endY}`}
+                    fill="none"
+                  />
+                  <text
+                    fill="#fff"
+                    fontSize="14"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                    style={{
+                      textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    <textPath
+                      href={`#${pathId}`}
+                      startOffset="50%"
+                      method="align"
+                      spacing="auto"
+                    >
+                      {label}
+                    </textPath>
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* Center Spin Button */}
+          <div
+            onClick={handleSpin}
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              width: wheelSize * 0.3,
+              height: wheelSize * 0.3,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #10b981, #059669)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: 700,
+              fontSize: 18,
+              color: "#fff",
+              boxShadow:
+                "0 4px 8px rgba(0,0,0,0.3), inset 0 2px 6px rgba(255,255,255,0.2)",
+              cursor: spinning ? "default" : "pointer",
+              zIndex: 20,
+              userSelect: "none",
+            }}
+          >
+            {spinning ? "Spinning..." : "Spin"}
+          </div>
+        </div>
+
+        {/* 🔻 Pointer (top, pointing down) */}
+        <div
+          style={{
+            position: "absolute",
+            top: -32,
+            width: 0,
+            height: 0,
+            borderLeft: "22px solid transparent",
+            borderRight: "22px solid transparent",
+            borderTop: "34px solid transparent",
+            borderBottom: "34px solid #222",
+            zIndex: 30,
+            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.4))",
+          }}
+        />
       </div>
 
-      <button
-        onClick={handleSpin}
-        disabled={!canSpin()}
-        style={{
-          padding: "12px 18px",
-          fontSize: 16,
-          cursor: canSpin() ? "pointer" : "not-allowed",
-          background: "#0b8f6f",
-          color: "white",
-          border: "none",
-          borderRadius: 6,
-          marginRight: 12,
-          opacity: canSpin() ? 1 : 0.6,
-        }}
-      >
-        {spinning ? "Spinning..." : `Spin (-${costPerSpin} pts)`}
-      </button>
+      {/* Controls */}
+      <div className="flex flex-col items-center gap-6">
+        <div className="text-2xl font-extrabold text-gray-900">
+          Your points: <span className="text-green-500">{points}</span>
+        </div>
 
-      <button
-        onClick={handleReset}
-        disabled={spinning}
-        style={{
-          padding: "10px 14px",
-          fontSize: 14,
-          cursor: spinning ? "not-allowed" : "pointer",
-          background: "#ddd",
-          border: "none",
-          borderRadius: 6,
-        }}
-      >
-        Reset
-      </button>
-
-      <div style={{ marginTop: 16, minHeight: 42 }}>
         {message && (
           <div
-            style={{
-              padding: 12,
-              background: message.includes("Congratulations")
-                ? "#e9f7ef"
-                : "#fff3f3",
-              borderRadius: 6,
-              border: message.includes("Congratulations")
-                ? "1px solid #c6efd5"
-                : "1px solid #f5c6c6",
-            }}
+            className={`p-4 rounded-2xl border w-80 text-center text-md font-semibold shadow-md transition-colors ${
+              message.includes("Congratulations")
+                ? "bg-green-50 border-green-400 text-green-700"
+                : "bg-red-50 border-red-400 text-red-700"
+            }`}
           >
             {message}
           </div>

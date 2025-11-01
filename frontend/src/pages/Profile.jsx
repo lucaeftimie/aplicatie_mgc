@@ -5,7 +5,7 @@ import "./Profile.css";
 export default function Profile() {
   const [posts, setPosts] = useState([
     {
-      author: "Ioana Popescu",
+      author: "Alex Ionescu",
       role: "Frontend Developer",
       text: "Lansăm astăzi noul dashboard pentru clienți!",
       image: "",
@@ -28,11 +28,11 @@ export default function Profile() {
   const [newPostImage, setNewPostImage] = useState("");
 
   const user = {
-    name: "Ioana Popescu",
+    name: "Alex Ionescu",
     company: "TechCorp",
     bio: "Frontend developer passionate about React and modern web apps.",
     stats: {
-      posts: posts.filter((p) => p.author === "Ioana Popescu").length,
+      posts: posts.filter((p) => p.author === "Alex Ionescu").length,
       followers: 120,
       following: 80,
     },

@@ -173,7 +173,7 @@ const Login = () => {
                 onClick={() =>
                   setStatusMessage({
                     type: "info",
-                    text: "Forgot password flow (UX-only).",
+                    text: "Forgot password flow",
                   })
                 }
               >
@@ -200,12 +200,7 @@ const Login = () => {
             <div className="socials">
               <button
                 type="button"
-                onClick={(e) =>
-                  handleSubmit(
-                    e,
-                    "Simulated Google sign-in successful (UI-only)."
-                  )
-                }
+                onClick={(e) => handleSubmit(e, "Google sign-in successful.")}
               >
                 <svg width="16" height="16" viewBox="0 0 48 48">
                   <path
@@ -245,7 +240,7 @@ const Login = () => {
                 onClick={() =>
                   setStatusMessage({
                     type: "info",
-                    text: "Sign up flow (UX-only).",
+                    text: "Sign up flow",
                   })
                 }
               >

@@ -39,12 +39,16 @@ export default function Navbar() {
 
   const activeLinkStyle = {
     color: "#fff",
-    borderBottom: "2px solid #00bcd4",
+    borderBottom: "2px solid #FF4F00",
     fontWeight: "bold",
   };
 
   return (
-    <nav style={{ backgroundColor: "#1e1e1e" }}>
+    <nav
+      style={{
+        backgroundColor: "#003152",
+      }}
+    >
       <div style={navStyle}>
         <NavLink
           to="/"
@@ -80,7 +84,7 @@ export default function Navbar() {
             isActive ? { ...linkStyle, ...activeLinkStyle } : linkStyle
           }
         >
-          Gambling
+          Reward Zone
         </NavLink>
       </div>
     </nav>
