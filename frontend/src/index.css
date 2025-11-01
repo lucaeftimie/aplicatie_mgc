@@ -1,68 +1,86 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+/* Base page background and font tweaks for the home page */
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
   }
-  a:hover {
-    color: #747bff;
+  body {
+    /* FIXED: Changed 'amber' to 'yellow' for guaranteed recognition */
+    @apply bg-gradient-to-b from-yellow-50 via-yellow-100 to-yellow-50 antialiased;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+      Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+/* Home page specific Tailwind component utilities */
+@layer components {
+  /* central feed container that sits on the soft gradient */
+  .home-feed-container {
+    @apply max-w-6xl mx-auto p-6 bg-white/90 rounded-2xl shadow-2xl min-h-[calc(100vh-48px)] relative;
+  }
+
+  /* fixed page title in the viewport top-left with warm gradient */
+  .home-title {
+    /* Kept 'orange' and 'yellow' as they are standard colors */
+    @apply fixed top-4 left-4 m-0 px-4 py-2 rounded-md bg-gradient-to-r from-orange-500 to-yellow-400 text-white text-lg font-extrabold shadow-lg z-50;
+  }
+
+  /* navbar wrapper positioned under the title */
+  .home-nav-wrapper {
+    @apply fixed left-4 top-24 z-40;
+  }
+
+  /* pill style nav link */
+  .home-nav-link {
+    /* FIXED: Changed 'amber' to 'yellow' for guaranteed recognition */
+    @apply inline-block px-4 py-2 rounded-full font-semibold text-yellow-800 bg-yellow-100 border border-yellow-200 transition-transform duration-150 ease-in-out hover:-translate-y-0.5 hover:shadow-md;
+  }
+
+  /* responsive grid for posts */
+  .home-posts-grid {
+    @apply mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 items-start;
+  }
+
+  /* post frame styling (card) */
+  .home-post-frame {
+    /* FIXED: Changed 'amber' to 'yellow' for guaranteed recognition */
+    @apply p-6 rounded-xl bg-white border border-yellow-100 shadow-md hover:-translate-y-2 hover:shadow-2xl transition-transform duration-200 ease-out overflow-hidden;
+  }
+
+  /* small meta / author styling */
+  .home-meta {
+    /* FIXED: Changed 'amber' to 'yellow' for guaranteed recognition */
+    @apply text-yellow-800 text-xs mt-3 font-semibold;
+  }
+}
+
+/* small-screen adjustments so fixed elements don't block content */
+@layer utilities {
+  @screen sm {
+    .home-title {
+      @apply text-xl;
+    }
+  }
+
+  @screen xs {
+    .home-title {
+      @apply left-3 top-3 px-3 py-1.5 text-sm;
+    }
+    .home-nav-wrapper {
+      @apply left-3 top-16;
+    }
+    .home-feed-container {
+      @apply p-4;
+    }
+    .home-post-frame {
+      @apply p-4;
+    }
   }
 }
